@@ -1,10 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import ProductManagementApp from './ProductManagementApp.jsx'
+import LedesmaApp from './LedesmaApp.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ProductManagementApp />
+    <LedesmaAppApp />
   </React.StrictMode>,
 )
