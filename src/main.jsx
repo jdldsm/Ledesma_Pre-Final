@@ -5,6 +5,6 @@ import LedesmaApp from './LedesmaApp.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <LedesmaAppApp />
+    <LedesmaApp />
   </React.StrictMode>,
 )
