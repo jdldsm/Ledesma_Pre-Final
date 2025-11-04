@@ -11,11 +11,11 @@ import {
 // JD’s Coffee Shop
 
 const bannerImages = [
-  "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1600&q=80", // Latte art top view
-  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&q=80", // Coffee beans and cup
-  "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1600&q=80", // Cozy mug close-up
-  "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1600&q=80", // Caramel latte swirl
-  "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1600&q=80", // Coffee setup with pastries
+  "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1600&q=80",
+  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&q=80",
+  "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1600&q=80",
+  "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1600&q=80",
+  "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1600&q=80",
 ];
 
 const defaultProducts = [
@@ -126,7 +126,7 @@ const defaultProducts = [
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgspIfnjg-5q0-IGB7IOW_iqQ2aqfIuEnwtQ&s",
     price: 200,
-    quantity: 4,
+    quantity: 0,
     rating: 4.9,
     description:
       "Coffee, chocolate chips, and milk blended into icy perfection.",
@@ -134,13 +134,12 @@ const defaultProducts = [
   },
 ];
 
-
 export default function ProductManagementApp() {
   const [products, setProducts] = useState(defaultProducts);
   const [filterCategory, setFilterCategory] = useState("All");
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Auto-slide images every 4 seconds
+  // Auto-slide
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
@@ -181,27 +180,25 @@ export default function ProductManagementApp() {
     <Router>
       <div className="min-h-screen bg-[#f8f3ee] text-[#4b2e05]">
         {/* Header */}
-        <header className="bg-[#fff7ed] border-b border-[#e2c9a6]">
-          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="text-2xl"></div>
-              <h1 className="text-xl font-bold tracking-wide">
-                JD’s Coffee Shop
-              </h1>
-            </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link to="/" className="hover:underline">
-                Menu
-              </Link>
-              <Link to="/add" className="hover:underline">
-                Add Coffee
-              </Link>
-              <div>
-                Total: <b>₱{overallTotal}</b>
-              </div>
-            </nav>
-          </div>
-        </header>
+      <header className="fixed top-0 left-0 w-full z-50 bg-[#fff7ed]/95 border-b border-[#e2c9a6] backdrop-blur-md shadow-sm">
+       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3">
+          <h1 className="text-xl font-bold tracking-wide">JD's Coffee Shop</h1>
+        </Link>
+        <nav className="flex items-center gap-4 text-sm">
+       <Link to="/" className="hover:underline">
+          Menu
+       </Link>
+       <Link to="/add" className="hover:underline">
+          Add Coffee
+      </Link>
+        <div>
+         Total: <b>₱{overallTotal}</b>
+       </div>
+    </nav>
+  </div>
+</header>
+
 
         {/* Slideshow */}
         <div className="relative w-full h-60 overflow-hidden">
@@ -222,7 +219,7 @@ export default function ProductManagementApp() {
           </div>
         </div>
 
-        <main className="max-w-6xl mx-auto px-6 py-8">
+        <main className="max-w-6xl mx-auto px-6 py-8 pt-28">
           <Routes>
             <Route
               path="/"
@@ -234,7 +231,6 @@ export default function ProductManagementApp() {
                   setFilterCategory={setFilterCategory}
                   updateQuantity={updateQuantity}
                   computeSubtotal={computeSubtotal}
-                  overallTotal={overallTotal}
                 />
               }
             />
@@ -253,7 +249,7 @@ export default function ProductManagementApp() {
 
         <footer className="bg-[#fff7ed] border-t border-[#e2c9a6] mt-8">
           <div className="max-w-6xl mx-auto px-6 py-4 text-sm text-center text-[#6b4a1e]">
-            © 2025 JD’s Coffee Shop — Freshly brewed every day.
+            © 2025 JD's Coffee Shop — Freshly brewed every day.
           </div>
         </footer>
       </div>
@@ -307,29 +303,41 @@ function HomeView({
 
 // ---------- Product Card ----------
 function ProductCard({ p, onUpdateQty, computeSubtotal }) {
+  const isOutOfStock = p.quantity === 0;
+  const isLowStock = p.quantity < 5 && p.quantity > 0;
+
   return (
-    <div className="bg-white border border-[#e2c9a6] rounded-lg p-4 flex flex-col">
-      <Link to={`/product/${p.id}`}>
-        <img
-          src={p.image}
-          alt={p.name}
-          className="h-40 w-full object-cover rounded mb-3"
-        />
-      </Link>
+    <div
+      className={`bg-white border border-[#e2c9a6] rounded-lg p-4 flex flex-col relative ${
+        isOutOfStock ? "opacity-80" : ""
+      }`}
+    >
+      {isOutOfStock && (
+        <span className="absolute top-2 right-2 bg-red-100 text-red-600 text-xs font-medium px-2 py-1 rounded">
+          Out of Stock
+        </span>
+      )}
+
+      <img
+        src={p.image}
+        alt={p.name}
+        className="h-40 w-full object-cover rounded mb-3"
+      />
+
       <h3 className="text-lg font-semibold">{p.name}</h3>
       <p className="text-sm text-gray-600">{p.category}</p>
+
       <div className="mt-2 flex justify-between items-center text-sm">
         <span>₱{p.price}</span>
-        <span className="text-gray-500">
-          Subtotal: ₱{computeSubtotal(p)}
-        </span>
+        <span className="text-gray-500">Subtotal: ₱{computeSubtotal(p)}</span>
       </div>
+
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button
             onClick={() => onUpdateQty(p.id, -1)}
             className="px-2 py-1 border rounded text-sm"
-            disabled={p.quantity <= 0}
+            disabled={isOutOfStock}
           >
             -
           </button>
@@ -341,12 +349,20 @@ function ProductCard({ p, onUpdateQty, computeSubtotal }) {
             +
           </button>
         </div>
-        {p.quantity < 5 && (
+
+        {isLowStock && (
           <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
             Low Stock
           </span>
         )}
       </div>
+
+      <Link
+        to={`/product/${p.id}`}
+        className="mt-4 text-sm bg-[#c5a047] text-white px-3 py-1 rounded hover:bg-[#b0913f] self-end"
+      >
+        View
+      </Link>
     </div>
   );
 }
