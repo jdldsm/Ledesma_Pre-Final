@@ -9,13 +9,11 @@ import {
 } from "react-router-dom";
 
 // JD’s Coffee Shop
-
 const bannerImages = [
-  "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1600&q=80",
-  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&q=80",
-  "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1600&q=80",
-  "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1600&q=80",
-  "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1600&q=80",
+  "https://media.istockphoto.com/id/1587154942/photo/summer-vacation-and-iced-coffees-on-the-beach.jpg?s=612x612&w=0&k=20&c=Hwpy_k6edfbr1QZouuIPJsKeFAw7xSOmh6-sJiqV3JU=",
+  "https://media.istockphoto.com/id/1354172796/photo/city-cafe-terrace-near-the-river-in-the-rainy-autumn-evening-in-the-lantern-light-raindrops.jpg?s=612x612&w=0&k=20&c=4xYgGxWSO9Y5C8NAvy41FaSwsZLLlsdPfes_Ud-03LY=",
+  "https://i.ytimg.com/vi/DFzFNDQiQSE/maxresdefault.jpg",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfD1bYWc1V8ZtWd3-IlgDV9oAbocfxnrvVeg&s",
 ];
 
 const defaultProducts = [
@@ -181,27 +179,29 @@ export default function ProductManagementApp() {
       <div className="min-h-screen bg-[#f8f3ee] text-[#4b2e05]">
         {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 bg-[#fff7ed]/95 border-b border-[#e2c9a6] backdrop-blur-md shadow-sm">
-       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <h1 className="text-xl font-bold tracking-wide">JD's Coffee Shop</h1>
-        </Link>
-        <nav className="flex items-center gap-4 text-sm">
-       <Link to="/" className="hover:underline">
-          Menu
-       </Link>
-       <Link to="/add" className="hover:underline">
-          Add Coffee
+  <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+    <Link to="/" className="flex items-center gap-3">
+      <h1 className="text-3xl font-extrabold tracking-wide text-[#4b2e05]">
+        JD's Coffee Shop
+      </h1>
+    </Link>
+    <nav className="flex items-center gap-6 text-base font-large text-[#4b2e05]">
+      <Link to="/" className="hover:underline">
+        Menu
       </Link>
-        <div>
-         Total: <b>₱{overallTotal}</b>
-       </div>
+      <Link to="/add" className="hover:underline">
+        Add Coffee
+      </Link>
+      <div className="flex items-center gap-1">
+        <span>Total:</span> <b className="text-lg">₱{overallTotal}</b>
+      </div>
     </nav>
   </div>
 </header>
 
 
         {/* Slideshow */}
-        <div className="relative w-full h-60 overflow-hidden">
+        <div className="relative w-full h-96 overflow-hidden">
           {bannerImages.map((src, index) => (
             <img
               key={index}
@@ -213,7 +213,7 @@ export default function ProductManagementApp() {
             />
           ))}
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <h2 className="text-white text-3xl font-semibold drop-shadow-lg">
+            <h2 className="text-white text-5xl font-extrabold drop-shadow-lg">
               Welcome to JD's Coffee Shop
             </h2>
           </div>
@@ -269,7 +269,7 @@ function HomeView({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">Our Coffee Menu</h2>
+        <h2 className="text-2xl font-extrabold">Our Coffee Menu</h2>
         <select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
@@ -312,12 +312,6 @@ function ProductCard({ p, onUpdateQty, computeSubtotal }) {
         isOutOfStock ? "opacity-80" : ""
       }`}
     >
-      {isOutOfStock && (
-        <span className="absolute top-2 right-2 bg-red-100 text-red-600 text-xs font-medium px-2 py-1 rounded">
-          Out of Stock
-        </span>
-      )}
-
       <img
         src={p.image}
         alt={p.name}
