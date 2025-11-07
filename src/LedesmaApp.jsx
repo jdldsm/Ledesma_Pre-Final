@@ -4,8 +4,8 @@ import {
   Routes,
   Route,
   Link,
-  useParams,
   useNavigate,
+  useParams,
 } from "react-router-dom";
 
 // JD’s Coffee Shop
@@ -25,21 +25,17 @@ const defaultProducts = [
       "https://static.vecteezy.com/system/resources/thumbnails/072/616/562/small/a-warm-and-inviting-caramel-latte-with-intricate-latte-art-served-with-a-spoon-on-a-folded-napkin-photo.jpg",
     price: 150,
     quantity: 5,
-    rating: 4.8,
     description: "Espresso with steamed milk and caramel syrup.",
-    specs: "Espresso · Steamed Milk · Caramel Syrup",
   },
   {
     id: "c2",
     name: "Iced Americano",
-    category: "Iced Coffee",
+    category: "Cold Coffee",
     image:
       "https://en.petitchef.com/imgupl/recipe/tiramisu-style-iced-americano-coffee--lg-469035p752451.webp",
     price: 120,
     quantity: 8,
-    rating: 4.6,
     description: "Strong espresso poured over ice for a refreshing kick.",
-    specs: "Espresso · Cold Water · Ice",
   },
   {
     id: "c3",
@@ -49,35 +45,29 @@ const defaultProducts = [
       "https://www.tasteofhome.com/wp-content/uploads/2024/11/Copycat-McDonalds-Mocha-Frappe_TOHD24_22961_JenaCarlin_6.jpg?fit=700%2C1024",
     price: 180,
     quantity: 3,
-    rating: 4.9,
     description: "Blended chocolate and espresso drink topped with cream.",
-    specs: "Espresso · Chocolate · Ice · Whipped Cream",
   },
   {
     id: "c4",
     name: "Spanish Latte",
-    category: "Iced Coffee",
+    category: "Cold Coffee",
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPAYX3SU9zfj3nnmB7waHNvrVsvWKhnSF6bw&s",
     price: 160,
     quantity: 6,
-    rating: 4.7,
     description:
       "Smooth espresso mixed with milk and a hint of condensed milk sweetness.",
-    specs: "Espresso · Milk · Condensed Milk",
   },
   {
     id: "c5",
     name: "Salted Caramel Latte",
-    category: "Iced Coffee",
+    category: "Cold Coffee",
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRewWwQGyIZDG0LtfCCteKnm4D-hDHdqH0j7w&s",
     price: 165,
     quantity: 4,
-    rating: 4.8,
     description:
       "Rich caramel latte topped with a sprinkle of sea salt for balance.",
-    specs: "Espresso · Steamed Milk · Caramel · Sea Salt",
   },
   {
     id: "c6",
@@ -87,10 +77,7 @@ const defaultProducts = [
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSR5qZzSXNqg1h_g2WBn7iZZlpUlK90KIMhbg&s",
     price: 130,
     quantity: 10,
-    rating: 4.9,
-    description:
-      "Classic cocoa drink topped with whipped cream and chocolate drizzle.",
-    specs: "Cocoa · Milk · Whipped Cream",
+    description: "Classic cocoa drink topped with whipped cream and chocolate drizzle.",
   },
   {
     id: "c7",
@@ -100,35 +87,7 @@ const defaultProducts = [
       "https://cdn.shopify.com/s/files/1/0187/0338/files/vanilla_latte_on_a_blue_plate.jpg?v=1616171556",
     price: 150,
     quantity: 7,
-    rating: 4.6,
     description: "Velvety espresso with steamed milk and a touch of vanilla.",
-    specs: "Espresso · Vanilla Syrup · Milk",
-  },
-  {
-    id: "c8",
-    name: "Matcha Crème Frappuccino",
-    category: "Blended",
-    image:
-      "https://celebratingsweets.com/wp-content/uploads/2018/12/Homemade-Hot-Chocolate-4.jpg",
-    price: 190,
-    quantity: 5,
-    rating: 4.8,
-    description:
-      "Blended Japanese matcha green tea with milk and cream — smooth and refreshing.",
-    specs: "Matcha · Milk · Ice · Cream",
-  },
-  {
-    id: "c9",
-    name: "Java Chip Frappuccino",
-    category: "Blended",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgspIfnjg-5q0-IGB7IOW_iqQ2aqfIuEnwtQ&s",
-    price: 200,
-    quantity: 0,
-    rating: 4.9,
-    description:
-      "Coffee, chocolate chips, and milk blended into icy perfection.",
-    specs: "Espresso · Chocolate Chips · Ice · Whipped Cream",
   },
 ];
 
@@ -136,8 +95,8 @@ export default function ProductManagementApp() {
   const [products, setProducts] = useState(defaultProducts);
   const [filterCategory, setFilterCategory] = useState("All");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [cart, setCart] = useState([]);
 
-  // Auto-slide
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
@@ -145,29 +104,44 @@ export default function ProductManagementApp() {
     return () => clearInterval(timer);
   }, []);
 
-  const categories = useMemo(() => {
-    const set = new Set(products.map((p) => p.category));
-    return ["All", ...Array.from(set)];
-  }, [products]);
+  // Add to cart
+  const addToCart = (product) => {
+    setCart((prev) => {
+      const exists = prev.find((item) => item.id === product.id);
+      if (exists) {
+        return prev.map((item) =>
+          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+        );
+      }
+      return [...prev, { ...product, qty: 1 }];
+    });
+  };
 
-  const addProduct = (product) => setProducts((prev) => [product, ...prev]);
-
-  const updateQuantity = (id, delta) => {
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? { ...p, quantity: Math.max(0, p.quantity + delta) }
-          : p
-      )
+  const updateCartQty = (id, delta) => {
+    setCart((prev) =>
+      prev
+        .map((item) =>
+          item.id === id
+            ? { ...item, qty: Math.max(1, item.qty + delta) }
+            : item
+        )
+        .filter((item) => item.qty > 0)
     );
   };
 
-  const computeSubtotal = (p) => Number((p.price * p.quantity).toFixed(2));
+  const clearCart = () => setCart([]);
 
-  const overallTotal = useMemo(() => {
-    return products
-      .reduce((sum, p) => sum + p.price * p.quantity, 0)
-      .toFixed(2);
+  const addNewProduct = (product) => {
+    setProducts((prev) => [...prev, { ...product, id: `c${Date.now()}` }]);
+  };
+
+  const cartTotal = cart
+    .reduce((sum, item) => sum + item.qty * item.price, 0)
+    .toFixed(2);
+
+  const categories = useMemo(() => {
+    const set = new Set(products.map((p) => p.category));
+    return ["All", ...Array.from(set)];
   }, [products]);
 
   const filtered = products.filter((p) =>
@@ -178,27 +152,29 @@ export default function ProductManagementApp() {
     <Router>
       <div className="min-h-screen bg-[#f8f3ee] text-[#4b2e05]">
         {/* Header */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-[#fff7ed]/95 border-b border-[#e2c9a6] backdrop-blur-md shadow-sm">
-  <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-    <Link to="/" className="flex items-center gap-3">
-      <h1 className="text-3xl font-extrabold tracking-wide text-[#4b2e05]">
-        JD's Coffee Shop
-      </h1>
-    </Link>
-    <nav className="flex items-center gap-6 text-base font-large text-[#4b2e05]">
-      <Link to="/" className="hover:underline">
-        Menu
-      </Link>
-      <Link to="/add" className="hover:underline">
-        Add Coffee
-      </Link>
-      <div className="flex items-center gap-1">
-        <span>Total:</span> <b className="text-lg">₱{overallTotal}</b>
-      </div>
-    </nav>
-  </div>
-</header>
-
+        <header className="fixed top-0 left-0 w-full z-50 bg-[#fff7ed]/95 border-b border-[#e2c9a6] backdrop-blur-md shadow-sm">
+          <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-3">
+              <h1 className="text-3xl font-extrabold tracking-wide text-[#4b2e05]">
+                JD's Coffee Shop
+              </h1>
+            </Link>
+            <nav className="flex items-center gap-6 text-base font-semibold text-[#4b2e05]">
+              <Link to="/" className="hover:underline">
+                Menu
+              </Link>
+              <Link to="/add" className="hover:underline">
+                Add New Product
+              </Link>
+              <Link to="/cart" className="hover:underline">
+                Cart ({cart.length})
+              </Link>
+              <div className="flex items-center gap-1">
+                <span>Total:</span> <b className="text-lg">₱{cartTotal}</b>
+              </div>
+            </nav>
+          </div>
+        </header>
 
         {/* Slideshow */}
         <div className="relative w-full h-96 overflow-hidden">
@@ -219,6 +195,7 @@ export default function ProductManagementApp() {
           </div>
         </div>
 
+        {/* Routes */}
         <main className="max-w-6xl mx-auto px-6 py-8 pt-28">
           <Routes>
             <Route
@@ -226,27 +203,33 @@ export default function ProductManagementApp() {
               element={
                 <HomeView
                   products={filtered}
+                  addToCart={addToCart}
                   categories={categories}
                   filterCategory={filterCategory}
                   setFilterCategory={setFilterCategory}
-                  updateQuantity={updateQuantity}
-                  computeSubtotal={computeSubtotal}
+                />
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <CartView
+                  cart={cart}
+                  updateCartQty={updateCartQty}
+                  cartTotal={cartTotal}
+                  clearCart={clearCart}
                 />
               }
             />
             <Route
               path="/product/:id"
-              element={
-                <ProductDetailView
-                  products={products}
-                  updateQuantity={updateQuantity}
-                />
-              }
+              element={<ProductDetails products={products} addToCart={addToCart} />}
             />
-            <Route path="/add" element={<AddProductView onAdd={addProduct} />} />
+            <Route path="/add" element={<AddProductView onAdd={addNewProduct} />} />
           </Routes>
         </main>
 
+        {/* Footer */}
         <footer className="bg-[#fff7ed] border-t border-[#e2c9a6] mt-8">
           <div className="max-w-6xl mx-auto px-6 py-4 text-sm text-center text-[#6b4a1e]">
             © 2025 JD's Coffee Shop — Freshly brewed every day.
@@ -260,161 +243,198 @@ export default function ProductManagementApp() {
 // ---------- Home ----------
 function HomeView({
   products,
+  addToCart,
   categories,
   filterCategory,
   setFilterCategory,
-  updateQuantity,
-  computeSubtotal,
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-extrabold">Our Coffee Menu</h2>
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="border rounded px-2 py-1 text-sm bg-white"
-        >
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+      <h2 className="text-2xl font-extrabold mb-6">Our Coffee Menu</h2>
+
+      {/* Category Filter */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setFilterCategory(cat)}
+            className={`px-3 py-1 rounded border text-sm ${
+              filterCategory === cat
+                ? "bg-[#4b2e05] text-white"
+                : "bg-white text-[#4b2e05]"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {products.length === 0 ? (
-          <div className="p-6 bg-white rounded text-center">No coffee found.</div>
-        ) : (
-          products.map((p) => (
-            <ProductCard
-              key={p.id}
-              p={p}
-              onUpdateQty={updateQuantity}
-              computeSubtotal={computeSubtotal}
+        {products.map((p) => (
+          <div
+            key={p.id}
+            className="bg-white border border-[#e2c9a6] rounded-lg p-4 flex flex-col"
+          >
+            <img
+              src={p.image}
+              alt={p.name}
+              className="h-40 w-full object-cover rounded mb-3"
             />
-          ))
-        )}
+            <h3 className="text-lg font-semibold">{p.name}</h3>
+            <p className="text-sm text-gray-600">{p.category}</p>
+            <span className="text-sm mt-2">₱{p.price}</span>
+            {p.quantity < 5 && (
+              <span className="mt-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded w-fit">
+                Low Stock
+              </span>
+            )}
+            <div className="flex gap-2 mt-3">
+              <Link
+                to={`/product/${p.id}`}
+                className="flex-1 text-center border border-[#4b2e05] text-[#4b2e05] py-2 rounded text-sm hover:bg-[#4b2e05] hover:text-white"
+              >
+                View
+              </Link>
+              <button
+                onClick={() => addToCart(p)}
+                className="flex-1 bg-[#4b2e05] text-white py-2 rounded text-sm hover:bg-[#3a2504]"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-// ---------- Product Card ----------
-function ProductCard({ p, onUpdateQty, computeSubtotal }) {
-  const isOutOfStock = p.quantity === 0;
-  const isLowStock = p.quantity < 5 && p.quantity > 0;
-
-  return (
-    <div
-      className={`bg-white border border-[#e2c9a6] rounded-lg p-4 flex flex-col relative ${
-        isOutOfStock ? "opacity-80" : ""
-      }`}
-    >
-      <img
-        src={p.image}
-        alt={p.name}
-        className="h-40 w-full object-cover rounded mb-3"
-      />
-
-      <h3 className="text-lg font-semibold">{p.name}</h3>
-      <p className="text-sm text-gray-600">{p.category}</p>
-
-      <div className="mt-2 flex justify-between items-center text-sm">
-        <span>₱{p.price}</span>
-        <span className="text-gray-500">Subtotal: ₱{computeSubtotal(p)}</span>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onUpdateQty(p.id, -1)}
-            className="px-2 py-1 border rounded text-sm"
-            disabled={isOutOfStock}
-          >
-            -
-          </button>
-          <span className="text-sm">{p.quantity}</span>
-          <button
-            onClick={() => onUpdateQty(p.id, 1)}
-            className="px-2 py-1 border rounded text-sm"
-          >
-            +
-          </button>
-        </div>
-
-        {isLowStock && (
-          <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-            Low Stock
-          </span>
-        )}
-      </div>
-
-      <Link
-        to={`/product/${p.id}`}
-        className="mt-4 text-sm bg-[#c5a047] text-white px-3 py-1 rounded hover:bg-[#b0913f] self-end"
-      >
-        View
-      </Link>
-    </div>
-  );
-}
-
-// ---------- Product Detail ----------
-function ProductDetailView({ products, updateQuantity }) {
+// ---------- Product Details ----------
+function ProductDetails({ products, addToCart }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const product = products.find((p) => p.id === id);
 
-  if (!product) {
+  if (!product)
     return (
       <div className="bg-white p-6 rounded text-center">
-        <p>Coffee not found.</p>
+        <p>Product not found.</p>
         <button
-          onClick={() => navigate(-1)}
-          className="text-sm mt-3 text-brown-700 underline"
+          onClick={() => navigate("/")}
+          className="mt-3 underline text-[#4b2e05]"
         >
-          Go back
+          Back to Menu
         </button>
       </div>
     );
-  }
 
   return (
-    <div className="bg-white rounded p-6">
+    <div className="bg-white p-6 rounded max-w-lg mx-auto shadow">
       <img
         src={product.image}
         alt={product.name}
-        className="w-full h-60 object-cover rounded mb-4"
+        className="w-full h-64 object-cover rounded mb-4"
       />
-      <h2 className="text-2xl font-semibold">{product.name}</h2>
-      <p className="text-sm text-gray-600">{product.category}</p>
-      <p className="mt-2 text-gray-700">{product.description}</p>
-      <p className="mt-2 text-sm text-gray-600">₱{product.price}</p>
-      <p className="text-sm text-gray-500">Stock: {product.quantity}</p>
-      <div className="mt-4 flex items-center gap-2">
+      <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
+      <p className="text-sm text-gray-600 mb-2">{product.category}</p>
+      <p className="mb-2">{product.description}</p>
+      <p className="font-semibold text-lg mb-2">₱{product.price}</p>
+      {product.quantity < 5 && (
+        <p className="text-yellow-700 bg-yellow-100 px-2 py-1 inline-block rounded mb-2">
+          Low Stock
+        </p>
+      )}
+      <div className="flex gap-3 mt-4">
         <button
-          onClick={() => updateQuantity(product.id, -1)}
-          className="px-3 py-1 border rounded"
-          disabled={product.quantity <= 0}
+          onClick={() => addToCart(product)}
+          className="flex-1 bg-[#4b2e05] text-white py-2 rounded hover:bg-[#3a2504]"
         >
-          -
+          Add to Cart
         </button>
-        <span>{product.quantity}</span>
         <button
-          onClick={() => updateQuantity(product.id, 1)}
-          className="px-3 py-1 border rounded"
+          onClick={() => navigate("/")}
+          className="flex-1 border border-[#4b2e05] text-[#4b2e05] py-2 rounded hover:bg-[#4b2e05] hover:text-white"
         >
-          +
+          Back
         </button>
       </div>
-      <button
-        onClick={() => navigate(-1)}
-        className="mt-6 text-sm text-brown-700 underline"
-      >
-        Back to menu
-      </button>
+    </div>
+  );
+}
+
+// ---------- Cart ----------
+function CartView({ cart, updateCartQty, cartTotal, clearCart }) {
+  const navigate = useNavigate();
+
+  if (cart.length === 0)
+    return (
+      <div className="bg-white p-6 rounded text-center">
+        <p>Your cart is empty ☕</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-3 text-sm underline text-[#4b2e05]"
+        >
+          Back to Menu
+        </button>
+      </div>
+    );
+
+  const handleCheckout = () => {
+    alert(`✅ Thank you for your order!\nTotal: ₱${cartTotal}`);
+    clearCart();
+    navigate("/");
+  };
+
+  return (
+    <div className="bg-white p-6 rounded">
+      <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
+      {cart.map((item) => (
+        <div
+          key={item.id}
+          className="flex items-center justify-between border-b py-3"
+        >
+          <div className="flex items-center gap-3">
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-16 h-16 object-cover rounded"
+            />
+            <div>
+              <p className="font-semibold">{item.name}</p>
+              <p className="text-sm text-gray-600">₱{item.price}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => updateCartQty(item.id, -1)}
+              className="px-2 py-1 border rounded text-sm"
+            >
+              -
+            </button>
+            <span>{item.qty}</span>
+            <button
+              onClick={() => updateCartQty(item.id, 1)}
+              className="px-2 py-1 border rounded text-sm"
+            >
+              +
+            </button>
+          </div>
+          <span className="font-semibold">
+            ₱{(item.qty * item.price).toFixed(2)}
+          </span>
+        </div>
+      ))}
+      <div className="mt-6 text-right font-bold text-lg">
+        Total: ₱{cartTotal}
+      </div>
+      <div className="mt-4 flex justify-end">
+        <button
+          onClick={handleCheckout}
+          className="bg-[#4b2e05] text-white px-5 py-2 rounded hover:bg-[#3a2504]"
+        >
+          Checkout
+        </button>
+      </div>
     </div>
   );
 }
@@ -428,76 +448,46 @@ function AddProductView({ onAdd }) {
     image: "",
     price: "",
     quantity: "",
-    rating: "",
     description: "",
-    specs: "",
   });
-  const [error, setError] = useState("");
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const validate = () => {
-    for (const k in form) if (!form[k]) return `${k} is required`;
-    return "";
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    const v = validate();
-    if (v) return setError(v);
-
-    const newProduct = {
-      id: `c_${Date.now()}`,
+    if (!form.name || !form.price || !form.image)
+      return alert("Please fill in all fields!");
+    onAdd({
       ...form,
       price: Number(form.price),
       quantity: Number(form.quantity),
-      rating: Number(form.rating),
-    };
-    onAdd(newProduct);
+    });
     navigate("/");
   };
 
   return (
-    <div className="bg-white p-6 rounded max-w-2xl mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Add New Coffee</h2>
+    <div className="bg-white p-6 rounded max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Add New Product</h2>
       <form onSubmit={handleSubmit} className="grid gap-3">
-        {[
-          ["name", "Coffee Name"],
-          ["category", "Category"],
-          ["image", "Image URL"],
-          ["price", "Price (₱)"],
-          ["quantity", "Quantity"],
-          ["rating", "Rating (0–5)"],
-          ["description", "Description"],
-          ["specs", "Ingredients"],
-        ].map(([key, label]) => (
-          <div key={key}>
-            <label className="block text-sm text-gray-600 mb-1">{label}</label>
+        {["name", "category", "image", "price", "quantity", "description"].map(
+          (key) => (
             <input
+              key={key}
               name={key}
               value={form[key]}
               onChange={handleChange}
-              className="w-full border rounded px-2 py-1 text-sm"
+              placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+              className="border rounded px-2 py-1 text-sm"
             />
-          </div>
-        ))}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <div className="flex gap-3 mt-3">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-[#4b2e05] text-white rounded text-sm"
-          >
-            Add Coffee
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="px-4 py-2 border rounded text-sm"
-          >
-            Cancel
-          </button>
-        </div>
+          )
+        )}
+        <button
+          type="submit"
+          className="bg-[#4b2e05] text-white py-2 rounded hover:bg-[#3a2504]"
+        >
+          Add Product
+        </button>
       </form>
     </div>
   );
